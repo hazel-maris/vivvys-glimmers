@@ -135,6 +135,34 @@
 
 
     <p id="status" role="status" aria-live="polite"></p>
+
+    
+    <!-- ============================================================
+        DEVELOPMENT ONLY — BULK PHOTO UPLOAD
+        Remove before Christmas
+        ============================================================ -->
+
+    <section id="bulk-upload-section" hidden>
+    <h2>Photo Preloading</h2>
+
+    <p>
+        Select multiple photos to add to Vivvy's memories.
+    </p>
+
+    <input
+        id="bulk-photo-input"
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/heic"
+        multiple
+    >
+
+    <button id="bulk-upload-button" type="button">
+        Upload Selected Photos
+    </button>
+
+    <p id="bulk-upload-status" role="status"></p>
+    </section>
+
   </main>
 </body>
 </html>
