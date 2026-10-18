@@ -117,3 +117,37 @@ button {
 #add-glimmer-form[hidden] {
   display: none;
 }
+
+
+/* ============================================================
+   REMEMBER THIS?
+   ============================================================ */
+
+#photo-section {
+  margin-top: 32px;
+}
+
+#daily-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 440px;
+
+  margin-top: 16px;
+
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+#photo-message {
+  color: #80618e;
+  line-height: 1.5;
+}
+
+#add-photo-button {
+  margin-top: 20px;
+}
+
+#photo-input {
+  display: none;
+}
