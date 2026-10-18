@@ -321,6 +321,31 @@ const photoInput =
 // DAILY PHOTO SELECTION
 // ============================================================
 
+
+// ============================================================
+// PHOTO SELECTION
+// ============================================================
+
+let photoQueue = [];
+let currentPhotoId = null;
+
+function shufflePhotos(photos, excludeId = null) {
+  const ids = photos
+    .filter(photo => photo.id !== excludeId)
+    .map(photo => photo.id);
+
+  // Fisher-Yates shuffle
+  for (let i = ids.length - 1; i > 0; i--) {
+    const j = Math.floor(
+      Math.random() * (i + 1)
+    );
+
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+  }
+
+  return ids;
+}
+
 function getDailyPhoto(photos, userId) {
   const today = new Date();
 
@@ -353,11 +378,8 @@ function getDailyPhoto(photos, userId) {
     }
   }
 
-  const index = Math.floor(
-    Math.random() * photos.length
-  );
-
-  const selected = photos[index];
+  const selected =
+    photos[Math.floor(Math.random() * photos.length)];
 
   localStorage.setItem(
     storageKey,
@@ -375,12 +397,49 @@ function getDailyPhoto(photos, userId) {
 // LOAD DAILY PHOTO
 // ============================================================
 
-async function loadPhoto() {
-  photoMessage.textContent =
-    "Loading your memory...";
 
+// ============================================================
+// LOAD PHOTOS
+// ============================================================
+
+let availablePhotos = [];
+
+const nextPhotoButton =
+  document.getElementById("next-photo-button");
+
+async function displayPhoto(photo) {
+  photoMessage.textContent = "Loading your memory...";
   dailyPhoto.hidden = true;
 
+  const { data, error } = await db.storage
+    .from("vivvy-photos")
+    .createSignedUrl(photo.storage_path, 3600);
+
+  if (error) {
+    console.error("Photo display error:", error);
+    photoMessage.textContent =
+      "Couldn't open this memory.";
+    return;
+  }
+
+  dailyPhoto.onload = () => {
+    photoMessage.textContent = "";
+  };
+
+  dailyPhoto.onerror = () => {
+    dailyPhoto.hidden = true;
+    photoMessage.textContent =
+      "Couldn't display this memory.";
+  };
+
+  dailyPhoto.src = data.signedUrl;
+  dailyPhoto.hidden = false;
+
+  currentPhotoId = photo.id;
+}
+
+
+async function loadPhoto() {
   const { data: userData, error: userError } =
     await db.auth.getUser();
 
@@ -397,52 +456,72 @@ async function loadPhoto() {
 
   if (error) {
     console.error("Photo load error:", error);
-
     photoMessage.textContent =
       "Couldn't load your memories.";
     return;
   }
 
-  if (!photos || photos.length === 0) {
+  availablePhotos = photos || [];
+
+  if (availablePhotos.length === 0) {
     photoMessage.textContent =
       "Your happy memories will appear here ♡";
+
+    nextPhotoButton.hidden = true;
     return;
   }
 
   const selected = getDailyPhoto(
-    photos,
+    availablePhotos,
     userData.user.id
   );
 
-  const { data, error: urlError } =
-    await db.storage
-      .from("vivvy-photos")
-      .createSignedUrl(
-        selected.storage_path,
-        3600
-      );
+  await displayPhoto(selected);
 
-  if (urlError) {
-    console.error("Photo URL error:", urlError);
+  photoQueue = shufflePhotos(
+    availablePhotos,
+    selected.id
+  );
 
-    photoMessage.textContent =
-      "Couldn't open today's memory.";
-    return;
-  }
-
-  dailyPhoto.onload = () => {
-    photoMessage.textContent = "";
-  };
-
-  dailyPhoto.onerror = () => {
-    photoMessage.textContent =
-      "Couldn't display today's memory.";
-    dailyPhoto.hidden = true;
-  };
-
-  dailyPhoto.src = data.signedUrl;
-  dailyPhoto.hidden = false;
+  nextPhotoButton.hidden =
+    availablePhotos.length < 2;
 }
+
+
+// ============================================================
+// SHOW ANOTHER MEMORY
+// ============================================================
+
+nextPhotoButton.addEventListener(
+  "click",
+  async () => {
+    if (availablePhotos.length < 2) {
+      return;
+    }
+
+    nextPhotoButton.disabled = true;
+
+    if (photoQueue.length === 0) {
+      photoQueue = shufflePhotos(
+        availablePhotos,
+        currentPhotoId
+      );
+    }
+
+    const nextId = photoQueue.shift();
+
+    const nextPhoto = availablePhotos.find(
+      photo => photo.id === nextId
+    );
+
+    if (nextPhoto) {
+      await displayPhoto(nextPhoto);
+    }
+
+    nextPhotoButton.disabled = false;
+  }
+);
+
 
 
 // ============================================================

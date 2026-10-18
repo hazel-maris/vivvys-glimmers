@@ -151,3 +151,16 @@ button {
 #photo-input {
   display: none;
 }
+
+
+/* ============================================================
+   PHOTO NAVIGATION
+   ============================================================ */
+
+#next-photo-button {
+  margin-top: 16px;
+}
+
+#next-photo-button[hidden] {
+  display: none;
+}
