@@ -1,178 +1,84 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Vivvy's Glimmers</title>
-
   <link rel="stylesheet" href="style.css">
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-    defer>
-  </script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="app.js" defer></script>
 </head>
-
 <body>
   <main>
     <h1>Vivvy's Glimmers ♡</h1>
 
     <section id="login-section">
       <h2>Welcome!</h2>
-
       <form id="login-form">
-        <input
-          id="email"
-          type="email"
-          placeholder="Email"
-          autocomplete="username"
-          required
-        >
-
-        <input
-          id="password"
-          type="password"
-          placeholder="Password"
-          autocomplete="current-password"
-          required
-        >
-
-        <button type="submit">
-          Sign In
-        </button>
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="username" required>
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+        <button type="submit">Sign In</button>
       </form>
     </section>
 
+    <div id="dashboard" class="dashboard">
+      <div class="dashboard-left">
+        <section id="glimmer-section" hidden>
+          <h2>Good morning, Vivvy ♡</h2>
+          <h3>Today's Glimmer</h3>
+          <p id="daily-glimmer">Loading your glimmer...</p>
+        </section>
 
-    <section id="glimmer-section" hidden>
+        <section id="add-memories-section" hidden>
+          <div class="memory-actions">
+            <button id="add-glimmer-button" type="button">+ Add Glimmer</button>
+            <button id="add-photo-button" type="button">+ Add Photo</button>
+            <button id="toggle-bulk-upload-button" type="button" aria-controls="bulk-upload-section" aria-expanded="false">+ Bulk Upload</button>
+          </div>
 
-    <h2>Good morning, Vivvy ♡</h2>
+          <form id="add-glimmer-form" hidden>
+            <label for="new-glimmer">What made you smile?</label>
+            <textarea id="new-glimmer" rows="3" maxlength="500" placeholder="A little moment worth remembering..." required></textarea>
+            <button type="submit">Save Glimmer ♡</button>
+            <button id="cancel-glimmer-button" type="button">Cancel</button>
+          </form>
 
-    <h3>Today's Glimmer</h3>
+          <section id="bulk-upload-section" class="inline-bulk" hidden>
+            <h3>Bulk Upload</h3>
+            <p>Select several memories at once.</p>
+            <input id="bulk-photo-input" type="file" accept="image/jpeg,image/png,image/webp,image/heic" multiple>
+            <button id="bulk-upload-button" type="button">Upload Selected Photos</button>
+            <p id="bulk-upload-status" role="status" aria-live="polite"></p>
+          </section>
+        </section>
+      </div>
 
-    <p id="daily-glimmer">
-        Loading your glimmer...
-    </p>
-
-    <!-- ADD GLIMMER -->
-
-    <button
-        id="add-glimmer-button"
-        type="button"
-    >
-        + Add Glimmer
-    </button>
-
-    <form id="add-glimmer-form" hidden>
-
-        <label for="new-glimmer">
-        What made you smile?
-        </label>
-
-        <textarea
-        id="new-glimmer"
-        rows="3"
-        maxlength="500"
-        placeholder="A little moment worth remembering..."
-        required
-        ></textarea>
-
-        <button type="submit">
-        Save Glimmer ♡
-        </button>
-
-        <button
-        id="cancel-glimmer-button"
-        type="button"
-        >
-        Cancel
-        </button>
-
-    </form>
-
-    
-<!-- ============================================================
-     REMEMBER THIS?
-     ============================================================ -->
-
+      <section id="photo-card" hidden>
         <div id="photo-section">
-
-        <h3>Remember This?</h3>
-
-        <img
-            id="daily-photo"
-            alt="A happy memory"
-            hidden
-        >
-
-        <p id="photo-message">
-            Loading your memory...
-        </p>
-
-        
-        <button
-        id="next-photo-button"
-        type="button"
-        hidden
-        >
-        Show Another Memory ♡
-        </button>
-
-
-        <button
-            id="add-photo-button"
-            type="button"
-        >
-            + Add Photo
-        </button>
-
-        <input
-            id="photo-input"
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/heic"
-            hidden
-        >
-
+          <h2>Remember This?</h2>
+          <button id="open-photo-button" class="photo-preview" type="button" aria-label="Enlarge this memory" hidden>
+            <img id="daily-photo" alt="A happy memory" hidden>
+          </button>
+          <p id="photo-message" role="status">Loading your memory...</p>
+          <button id="next-photo-button" type="button" hidden>Show Another Memory ♡</button>
+          <input id="photo-input" type="file" accept="image/jpeg,image/png,image/webp,image/heic" hidden>
         </div>
-
-
-    </section>
-
+      </section>
+    </div>
 
     <p id="status" role="status" aria-live="polite"></p>
-
-    
-    <!-- ============================================================
-        DEVELOPMENT ONLY — BULK PHOTO UPLOAD
-        Remove before Christmas
-        ============================================================ -->
-
-    <section id="bulk-upload-section" hidden>
-    <h2>Photo Preloading</h2>
-
-    <p>
-        Select multiple photos to add to Vivvy's memories.
-    </p>
-
-    <input
-        id="bulk-photo-input"
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/heic"
-        multiple
-    >
-
-    <button id="bulk-upload-button" type="button">
-        Upload Selected Photos
-    </button>
-
-    <p id="bulk-upload-status" role="status"></p>
-    </section>
-
+    <button id="sign-out-button" class="sign-out" type="button" hidden>Sign Out</button>
   </main>
+
+  <div id="photo-viewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Enlarged memory" hidden>
+    <button id="close-photo-viewer" class="photo-viewer-close" type="button" aria-label="Close enlarged memory">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+        <path d="M5 5L19 19M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+      </svg>
+    </button>
+    <img id="enlarged-photo" alt="Enlarged memory">
+  </div>
 </body>
 </html>

@@ -11,7 +11,7 @@
 // ============================================================
 
 const SUPABASE_URL =
-  "https://pmzfiubwcvxjkzbxbcsn.supabase.co/";
+  "https://pmzfiubwcvxjkzbxbcsn.supabase.co";
 
 const SUPABASE_KEY =
   "sb_publishable_41nkpTCl6Tr3bzNxqQrOHA_AO1pg2iL";
@@ -40,6 +40,23 @@ const dailyGlimmer =
 
 const statusElement =
   document.getElementById("status");
+
+
+// ============================================================
+// PHOTO VIEWER ELEMENTS
+// ============================================================
+
+const openPhotoButton =
+  document.getElementById("open-photo-button");
+
+const photoViewer =
+  document.getElementById("photo-viewer");
+
+const closePhotoViewerButton =
+  document.getElementById("close-photo-viewer");
+
+const enlargedPhoto =
+  document.getElementById("enlarged-photo");
 
 
 // ============================================================
@@ -140,15 +157,74 @@ async function loadGlimmer() {
 async function showApp() {
   loginSection.hidden = true;
   glimmerSection.hidden = false;
+  document.getElementById("photo-card").hidden = false;
+  signOutButton.hidden = false;
 
-    // Temporary development tool
-  bulkUploadSection.hidden = false;
+  document.getElementById(
+    "add-memories-section"
+  ).hidden = false;
+
+  // Temporary development tool
+  bulkUploadSection.hidden = true;
 
   await Promise.all([
     loadGlimmer(),
     loadPhoto()
   ]);
 }
+
+
+// ============================================================
+// SIGN OUT (IMPORTANT FOR SHARED / WORK COMPUTERS)
+// ============================================================
+
+const signOutButton =
+  document.getElementById("sign-out-button");
+
+signOutButton?.addEventListener("click", async () => {
+  signOutButton.disabled = true;
+  setStatus("Signing out...");
+
+  const { error } = await db.auth.signOut();
+
+  signOutButton.disabled = false;
+
+  if (error) {
+    console.error("Sign out error:", error);
+    setStatus("Couldn't sign out. Please try again.");
+    return;
+  }
+
+  // Clear private content from the current page.
+  if (photoViewer && !photoViewer.hidden) {
+    closePhotoViewer();
+  }
+
+  glimmerSection.hidden = true;
+  document.getElementById("photo-card").hidden = true;
+  signOutButton.hidden = true;
+  document.getElementById("add-memories-section").hidden = true;
+  bulkUploadSection.hidden = true;
+  toggleBulkUploadButton.setAttribute("aria-expanded", "false");
+  loginSection.hidden = false;
+
+  loginForm.reset();
+  addGlimmerForm.reset();
+  addGlimmerForm.hidden = true;
+  addGlimmerButton.hidden = false;
+
+  dailyGlimmer.textContent = "";
+  dailyPhoto.removeAttribute("src");
+  dailyPhoto.hidden = true;
+  if (openPhotoButton) openPhotoButton.hidden = true;
+  photoMessage.textContent = "";
+  nextPhotoButton.hidden = true;
+  availablePhotos = [];
+  photoQueue = [];
+  currentPhotoId = null;
+
+  setStatus("Signed out successfully.");
+});
 
 
 // ============================================================
@@ -323,6 +399,77 @@ const photoInput =
 
 
 // ============================================================
+// FULLSCREEN PHOTO VIEWER
+// ============================================================
+
+let photoViewerPreviouslyFocused = null;
+
+function openPhotoViewer() {
+  if (!photoViewer || !enlargedPhoto ||
+      !dailyPhoto.src || dailyPhoto.hidden) {
+    return;
+  }
+
+  photoViewerPreviouslyFocused =
+    document.activeElement;
+
+  enlargedPhoto.src = dailyPhoto.src;
+
+  photoViewer.hidden = false;
+
+  document.body.classList.add(
+    "photo-viewer-open"
+  );
+
+  closePhotoViewerButton.focus();
+}
+
+
+function closePhotoViewer() {
+  if (!photoViewer) return;
+
+  photoViewer.hidden = true;
+
+  enlargedPhoto.removeAttribute("src");
+
+  document.body.classList.remove(
+    "photo-viewer-open"
+  );
+
+  photoViewerPreviouslyFocused?.focus();
+}
+
+
+// The HTML must contain the preview button and viewer.
+// Optional chaining prevents an incomplete markup update from
+// breaking the rest of the application.
+openPhotoButton?.addEventListener("click", openPhotoViewer);
+closePhotoViewerButton?.addEventListener("click", closePhotoViewer);
+
+// Tapping the dark backdrop closes the viewer.
+// Tapping the photo itself does nothing.
+photoViewer?.addEventListener("click", (event) => {
+  if (event.target === photoViewer) {
+    closePhotoViewer();
+  }
+});
+
+
+// Close with Escape on desktop
+document.addEventListener(
+  "keydown",
+  (event) => {
+    if (
+      event.key === "Escape" &&
+      photoViewer && !photoViewer.hidden
+    ) {
+      closePhotoViewer();
+    }
+  }
+);
+
+
+// ============================================================
 // PHOTO SELECTION
 // ============================================================
 
@@ -410,6 +557,7 @@ const nextPhotoButton =
 async function displayPhoto(photo) {
   photoMessage.textContent = "Loading your memory...";
   dailyPhoto.hidden = true;
+  if (openPhotoButton) openPhotoButton.hidden = true;
 
   const { data, error } = await db.storage
     .from("vivvy-photos")
@@ -417,24 +565,24 @@ async function displayPhoto(photo) {
 
   if (error) {
     console.error("Photo display error:", error);
-    photoMessage.textContent =
-      "Couldn't open this memory.";
+    photoMessage.textContent = "Couldn't open this memory.";
     return;
   }
 
+  // Reveal the thumbnail only when the new photo is ready.
   dailyPhoto.onload = () => {
+    dailyPhoto.hidden = false;
+    if (openPhotoButton) openPhotoButton.hidden = false;
     photoMessage.textContent = "";
   };
 
   dailyPhoto.onerror = () => {
     dailyPhoto.hidden = true;
-    photoMessage.textContent =
-      "Couldn't display this memory.";
+    if (openPhotoButton) openPhotoButton.hidden = true;
+    photoMessage.textContent = "Couldn't display this memory.";
   };
 
   dailyPhoto.src = data.signedUrl;
-  dailyPhoto.hidden = false;
-
   currentPhotoId = photo.id;
 }
 
@@ -446,6 +594,8 @@ async function loadPhoto() {
   if (userError || !userData.user) {
     photoMessage.textContent =
       "Please sign in to see your memories.";
+    dailyPhoto.hidden = true;
+    if (openPhotoButton) openPhotoButton.hidden = true;
     return;
   }
 
@@ -467,6 +617,8 @@ async function loadPhoto() {
     photoMessage.textContent =
       "Your happy memories will appear here ♡";
 
+    dailyPhoto.hidden = true;
+    if (openPhotoButton) openPhotoButton.hidden = true;
     nextPhotoButton.hidden = true;
     return;
   }
@@ -651,6 +803,23 @@ const bulkUploadButton =
 
 const bulkUploadStatus =
   document.getElementById("bulk-upload-status");
+
+const toggleBulkUploadButton =
+  document.getElementById("toggle-bulk-upload-button");
+
+toggleBulkUploadButton.addEventListener("click", () => {
+  const opening = bulkUploadSection.hidden;
+  bulkUploadSection.hidden = !opening;
+  toggleBulkUploadButton.setAttribute(
+    "aria-expanded",
+    String(opening)
+  );
+
+  if (opening) {
+    bulkPhotoInput.focus();
+  }
+});
+
 
 
 // ============================================================

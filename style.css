@@ -1,166 +1,217 @@
-
 /* ============================================================
-   VIVVY'S GLIMMERS
-   First Functional Prototype
+   VIVVY'S GLIMMERS — MOBILE FIRST + DESKTOP
    ============================================================ */
-
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
   min-height: 100vh;
-
   font-family: system-ui, sans-serif;
-
   background: #f8f3f8;
   color: #403448;
 }
 
-main {
-  width: min(100% - 32px, 420px);
-  margin: 48px auto;
-}
-
-h1 {
-  color: #80618e;
-}
-
+main { width: min(100% - 32px, 420px); margin: 24px auto 48px; }
+h1 { color: #80618e; }
 section {
-  margin-top: 24px;
-  padding: 24px;
-
+  padding: 20px;
+  margin-top: 20px;
   background: white;
   border-radius: 16px;
 }
+/* Mobile reading order: glimmer, photo, then action buttons. */
+.dashboard { display: flex; flex-direction: column; }
+.dashboard-left { display: contents; }
+#glimmer-section { order: 1; }
+#photo-card { order: 2; }
+#add-memories-section { order: 3; }
+h2 { margin-top: 0; }
+h3 { margin-bottom: 12px; }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+form { display: flex; flex-direction: column; gap: 12px; }
+input, textarea, button { font: inherit; }
+input:not([type="file"]), textarea {
+  width: 100%; padding: 14px;
+  border: 1px solid #c9bdce; border-radius: 10px;
 }
-
-input,
 button {
-  width: 100%;
-  padding: 14px;
-
-  font: inherit;
-  border-radius: 10px;
+  width: 100%; padding: 14px;
+  border: none; border-radius: 10px;
+  background: #80618e; color: white; cursor: pointer;
+}
+button:disabled { opacity: .6; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 3px solid #80618e; outline-offset: 3px;
 }
 
-input {
-  border: 1px solid #c9bdce;
+#daily-glimmer { font-size: 1.15rem; line-height: 1.6; }
+.memory-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.memory-actions button { padding: 14px 6px; font-size: .92rem; }
+#toggle-bulk-upload-button { grid-column: 1 / -1; }
+#add-glimmer-form { margin-top: 20px; }
+#add-glimmer-form label { font-weight: 600; }
+#new-glimmer { min-height: 100px; resize: vertical; line-height: 1.5; }
+#cancel-glimmer-button { background: #eee7f1; color: #403448; }
+
+.inline-bulk { padding: 16px 0 0; margin-top: 18px; border-top: 1px solid #eee7f1; border-radius: 0; }
+.inline-bulk p { line-height: 1.5; }
+#bulk-photo-input { display: block; width: 100%; max-width: 100%; margin: 12px 0; }
+#bulk-upload-status { overflow-wrap: anywhere; }
+
+#photo-section { margin: 0; }
+.photo-preview {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: clamp(130px, 22dvh, 190px);
+  margin-top: 16px; padding: 0;
+  background: #f8f3f8; overflow: hidden; cursor: zoom-in;
 }
+#daily-photo { display: block; width: 100%; height: 100%; object-fit: contain; }
+#photo-message { color: #80618e; line-height: 1.5; }
+#next-photo-button { margin-top: 16px; }
+#photo-input { display: none; }
+#status { min-height: 24px; }
+.sign-out { width: auto; padding: 10px 18px; background: transparent; color: #80618e; border: 1px solid #80618e; }
 
-button {
-  border: none;
-  background: #80618e;
-  color: white;
-  cursor: pointer;
+/* Fullscreen viewer on mobile and desktop */
+.photo-viewer {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 72px 12px 24px;
+  background: rgba(22, 17, 27, .96);
 }
-
-#daily-glimmer {
-  line-height: 1.6;
-  font-size: 1.15rem;
+.photo-viewer img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+.photo-viewer-close {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; padding: 0;
+  border-radius: 50%; background: white; color: #403448;
+  font-size: 32px; line-height: 1;
 }
+body.photo-viewer-open { overflow: hidden; }
 
-#status {
-  min-height: 24px;
-}
-
-[hidden] {
-  display: none !important;
-}
-
-
-/* ============================================================
-   ADD GLIMMER
-   ============================================================ */
-
-#add-glimmer-button {
-  margin-top: 20px;
-}
-
-#add-glimmer-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  margin-top: 20px;
-}
-
-#add-glimmer-form textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 14px;
-
-  font: inherit;
-  line-height: 1.5;
-
-  border: 1px solid #c9bdce;
-  border-radius: 10px;
-
-  resize: vertical;
-}
-
-#add-glimmer-form label {
-  font-weight: 600;
-}
-
-#cancel-glimmer-button {
-  background: #eee7f1;
-  color: #403448;
-}
-
-#add-glimmer-form[hidden] {
-  display: none;
+/* Desktop: compact controls left, spacious collage right */
+@media (min-width: 768px) {
+  main { width: min(100% - 64px, 1200px); margin: 40px auto 64px; }
+  .dashboard { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .dashboard-left { display: block; min-width: 0; }
+  #photo-card { margin-top: 20px; min-width: 0; }
+  #photo-card h2 { margin-bottom: 16px; }
+  .photo-preview { height: min(65vh, 650px); }
+  section { padding: 28px; border-radius: 20px; }
+  #login-section { max-width: 440px; }
+  .memory-actions { grid-template-columns: 1fr; }
+  #toggle-bulk-upload-button { grid-column: auto; }
+  .memory-actions button { font-size: 1rem; }
 }
 
 
 /* ============================================================
-   REMEMBER THIS?
+   DESKTOP — FIT DASHBOARD INSIDE THE BROWSER WINDOW
+   Only applies when there is enough space for a usable layout.
    ============================================================ */
 
-#photo-section {
-  margin-top: 32px;
-}
+@media (min-width: 768px) and (min-height: 600px) {
+  html, body {
+    height: 100%;
+  }
 
-#daily-photo {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 440px;
+  body {
+    overflow: hidden;
+  }
 
-  margin-top: 16px;
+  main {
+    height: 100dvh;
+    width: min(100% - 48px, 1200px);
+    margin: 0 auto;
+    padding: 22px 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+  }
 
-  object-fit: contain;
-  border-radius: 12px;
-}
+  main > h1 {
+    flex: 0 0 auto;
+    margin: 0 0 4px;
+    line-height: 1.25;
+  }
 
-#photo-message {
-  color: #80618e;
-  line-height: 1.5;
-}
+  .dashboard {
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+    gap: 20px;
+    align-items: stretch;
+  }
 
-#add-photo-button {
-  margin-top: 20px;
-}
+  .dashboard-left {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 14px;
+    overflow-y: auto;
+  }
 
-#photo-input {
-  display: none;
-}
+  #glimmer-section,
+  #add-memories-section {
+    margin: 0;
+    flex: 0 0 auto;
+  }
 
+  #photo-card {
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 24px;
+  }
 
-/* ============================================================
-   PHOTO NAVIGATION
-   ============================================================ */
+  #photo-section {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
 
-#next-photo-button {
-  margin-top: 16px;
-}
+  #photo-card h2 {
+    flex: 0 0 auto;
+    margin: 0 0 10px;
+  }
 
-#next-photo-button[hidden] {
-  display: none;
+  .photo-preview {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    margin-top: 0;
+  }
+
+  #photo-message:empty {
+    display: none;
+  }
+
+  #next-photo-button {
+    flex: 0 0 auto;
+    margin-top: 12px;
+  }
+
+  #status {
+    flex: 0 0 auto;
+    min-height: 0;
+    margin: 0;
+  }
+
+  #status:empty {
+    display: none;
+  }
+
+  #sign-out-button {
+    flex: 0 0 auto;
+    align-self: flex-start;
+    margin: 0;
+  }
 }
