@@ -155,6 +155,7 @@ async function loadGlimmer() {
 // ============================================================
 
 async function showApp() {
+  setStatus("");
   loginSection.hidden = true;
   glimmerSection.hidden = false;
   document.getElementById("photo-card").hidden = false;
