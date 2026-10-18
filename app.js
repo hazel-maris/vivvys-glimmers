@@ -55,16 +55,53 @@ function setStatus(message) {
 // DAILY SELECTION
 // ============================================================
 
-function getDailyIndex(count) {
+
+// ============================================================
+// DAILY GLIMMER SELECTION
+// ============================================================
+
+function getDailyGlimmer(glimmers) {
   const today = new Date();
 
-  const dateKey =
-    today.getFullYear() * 10000 +
-    (today.getMonth() + 1) * 100 +
-    today.getDate();
+  const dateKey = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, "0"),
+    String(today.getDate()).padStart(2, "0")
+  ].join("-");
 
-  return dateKey % count;
+  const storageKey = "vivvy-daily-glimmer";
+
+  const saved = JSON.parse(
+    localStorage.getItem(storageKey) || "null"
+  );
+
+  if (saved?.date === dateKey) {
+    const existing = glimmers.find(
+      (glimmer) => glimmer.id === saved.id
+    );
+
+    if (existing) {
+      return existing;
+    }
+  }
+
+  const index = Math.floor(
+    Math.random() * glimmers.length
+  );
+
+  const selected = glimmers[index];
+
+  localStorage.setItem(
+    storageKey,
+    JSON.stringify({
+      date: dateKey,
+      id: selected.id
+    })
+  );
+
+  return selected;
 }
+
 
 
 // ============================================================
@@ -85,16 +122,15 @@ async function loadGlimmer() {
   if (!data || data.length === 0) {
     dailyGlimmer.textContent =
       "Your glimmers will appear here ♡";
+
     return;
   }
 
-  const index = getDailyIndex(data.length);
+  const selected = getDailyGlimmer(data);
 
-  dailyGlimmer.textContent =
-    data[index].content;
-
-  setStatus("");
+  dailyGlimmer.textContent = selected.content;
 }
+
 
 
 // ============================================================
@@ -248,10 +284,8 @@ addGlimmerForm.addEventListener(
     addGlimmerForm.hidden = true;
     addGlimmerButton.hidden = false;
 
-    setStatus("Your glimmer was saved! ♡");
-
-    await loadGlimmer();
-  }
+    setStatus(`Your glimmer was saved! ♡ "${content}"`);
+    }
 );
 
 
