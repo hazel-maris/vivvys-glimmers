@@ -1,0 +1,119 @@
+
+/* ============================================================
+   VIVVY'S GLIMMERS
+   First Functional Prototype
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+
+  font-family: system-ui, sans-serif;
+
+  background: #f8f3f8;
+  color: #403448;
+}
+
+main {
+  width: min(100% - 32px, 420px);
+  margin: 48px auto;
+}
+
+h1 {
+  color: #80618e;
+}
+
+section {
+  margin-top: 24px;
+  padding: 24px;
+
+  background: white;
+  border-radius: 16px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+input,
+button {
+  width: 100%;
+  padding: 14px;
+
+  font: inherit;
+  border-radius: 10px;
+}
+
+input {
+  border: 1px solid #c9bdce;
+}
+
+button {
+  border: none;
+  background: #80618e;
+  color: white;
+  cursor: pointer;
+}
+
+#daily-glimmer {
+  line-height: 1.6;
+  font-size: 1.15rem;
+}
+
+#status {
+  min-height: 24px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+
+/* ============================================================
+   ADD GLIMMER
+   ============================================================ */
+
+#add-glimmer-button {
+  margin-top: 20px;
+}
+
+#add-glimmer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  margin-top: 20px;
+}
+
+#add-glimmer-form textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 14px;
+
+  font: inherit;
+  line-height: 1.5;
+
+  border: 1px solid #c9bdce;
+  border-radius: 10px;
+
+  resize: vertical;
+}
+
+#add-glimmer-form label {
+  font-weight: 600;
+}
+
+#cancel-glimmer-button {
+  background: #eee7f1;
+  color: #403448;
+}
+
+#add-glimmer-form[hidden] {
+  display: none;
+}

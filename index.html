@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+
+  <title>Vivvy's Glimmers</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    defer>
+  </script>
+
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+  <main>
+    <h1>Vivvy's Glimmers ♡</h1>
+
+    <section id="login-section">
+      <h2>Welcome!</h2>
+
+      <form id="login-form">
+        <input
+          id="email"
+          type="email"
+          placeholder="Email"
+          autocomplete="username"
+          required
+        >
+
+        <input
+          id="password"
+          type="password"
+          placeholder="Password"
+          autocomplete="current-password"
+          required
+        >
+
+        <button type="submit">
+          Sign In
+        </button>
+      </form>
+    </section>
+
+
+    <section id="glimmer-section" hidden>
+
+    <h2>Good morning, Vivvy ♡</h2>
+
+    <h3>Today's Glimmer</h3>
+
+    <p id="daily-glimmer">
+        Loading your glimmer...
+    </p>
+
+    <!-- ADD GLIMMER -->
+
+    <button
+        id="add-glimmer-button"
+        type="button"
+    >
+        + Add Glimmer
+    </button>
+
+    <form id="add-glimmer-form" hidden>
+
+        <label for="new-glimmer">
+        What made you smile?
+        </label>
+
+        <textarea
+        id="new-glimmer"
+        rows="3"
+        maxlength="500"
+        placeholder="A little moment worth remembering..."
+        required
+        ></textarea>
+
+        <button type="submit">
+        Save Glimmer ♡
+        </button>
+
+        <button
+        id="cancel-glimmer-button"
+        type="button"
+        >
+        Cancel
+        </button>
+
+    </form>
+
+    </section>
+
+
+    <p id="status" role="status" aria-live="polite"></p>
+  </main>
+</body>
+</html>
